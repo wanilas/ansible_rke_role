@@ -1,0 +1,55 @@
+---
+- name: Download rke binary
+  get_url:
+    url: "https://github.com/rancher/rke/releases/download/v{{ rke_version }}/rke_{{ rke_arch }}"
+    dest: "/tmp/rke_{{ rke_arch }}"
+    mode: '0777'
+
+- name: Move rke binary to the binaries folder
+  become: yes
+  copy:
+    remote_src: True
+    src: "/tmp/rke_{{ rke_arch }}"
+    dest: /usr/local/bin/rke
+
+- name: Change rke binary ownership, group and permissions
+  become: yes
+  ansible.builtin.file:
+    path: /usr/local/bin/rke
+    owner: ubuntu
+    group: ubuntu
+    mode: '0777'
+
+- name: Create the cluster.yml file
+  template:
+    src: cluster.yml.j2
+    dest: /home/ubuntu/cluster.yml
+    lstrip_blocks : yes
+
+- name: Deploy local cluster
+  shell: rke up
+
+- name: Additional wait
+  pause:
+    minutes: 1
+
+- name: Create the .kube directory
+  ansible.builtin.file:
+    path: /home/ubuntu/.kube
+    state: directory
+    mode: '0777'
+
+- name: Move files at the right places
+  become: yes
+  copy:
+    remote_src: True
+    src: /home/ubuntu/kube_config_cluster.yml
+    dest: /home/ubuntu/.kube/config
+
+- name: Change config file ownership, group and permissions
+  become: yes
+  ansible.builtin.file:
+    path: /home/ubuntu/.kube/config
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'

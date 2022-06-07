@@ -1,0 +1,28 @@
+---
+- name: Remove existing rke cluster
+  shell: rke remove --force
+  ignore_errors: true
+  when: "'load-balancer' in hostvars[inventory_hostname]['roles']"
+
+- name: Delete existing certificates
+  become: yes
+  ignore_errors: true
+  ansible.builtin.file:
+    path: /home/ubuntu/.kube/
+    state: absent
+
+- name: Remove all running containers
+  become: yes
+  ignore_errors: true
+  shell: docker rm -f $(docker ps -a -q)
+
+- name: Delete kubernetes installation
+  become: yes
+  ignore_errors: yes
+  ansible.builtin.file:
+    path: /etc/kubernetes/
+    state: absent
+
+- name: Reboot the machine
+  become: yes
+  reboot:
