@@ -1,21 +1,23 @@
 #{{ ansible_managed }}
 
 nodes:
-  {% for host in groups['rpi'] %}
-  - address: "{{ hostvars[host]['ansible_host'] }}"
-    user: ubuntu
-    role:
-    {% for role in hostvars[host]['roles'] %}
-      {% if 'controlplane' in role %}
-      - controlplane
-      {% endif %}
-      {% if 'worker' in role %}
-      - worker
-      {% endif %}
-      {% if 'etcd' in role %}
-      - etcd
-      {% endif %}
-    {%- endfor %}
+  {% for host in groups['virtual_servers'] %}
+    {% if 'controlplane' in hostvars[host]['roles'] or 'worker' in hostvars[host]['roles'] or 'etcd' in hostvars[host]['roles'] %}
+    - address: "{{ hostvars[host]['ansible_host'] }}"
+      user: ubuntu
+      role:
+      {% for role in hostvars[host]['roles'] %}
+        {% if 'controlplane' in role %}
+        - controlplane
+        {% endif %}
+        {% if 'worker' in role %}
+        - worker
+        {% endif %}
+        {% if 'etcd' in role %}
+        - etcd
+        {% endif %}
+      {%- endfor %}
+    {% endif %}
 {% endfor %}
 
 services:
