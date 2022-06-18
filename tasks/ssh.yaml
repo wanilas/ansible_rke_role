@@ -1,8 +1,17 @@
 ---
+- name: Create needed .ssh folder
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.ssh"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  become: yes
+
 - name: SSH KeyGen command
-  shell: > 
+  shell: |
     ssh-keygen -q -b 2048 -t rsa -N "" -C "creating SSH" -f ~/.ssh/id_rsa
     creates="~/.ssh/id_rsa"
+
 - name: Fetch the keyfile from the node to master
   fetch: 
     src: "~/.ssh/id_rsa.pub"
@@ -16,4 +25,4 @@
     key: "{{ lookup('file','buffer/{{item}}-id_rsa.pub')}}"
   #when: "{{ item != ansible_hostname }}"
   with_items: 
-    - "{{ groups['rpi'] }}"
+    - "{{ groups['virtual_servers'] }}"

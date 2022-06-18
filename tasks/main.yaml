@@ -1,7 +1,7 @@
 ---
-#- name: Configure os
-#  include_tasks: os.yaml
-#  when: inventory_hostname is in groups['virtual_servers']
+- name: Configure os
+  include_tasks: os.yaml
+  when: "inventory_hostname in groups['virtual_servers']"
 
 - name: Install pip3
   include_tasks: pip.yaml
@@ -17,9 +17,9 @@
 - name: Install Docker
   include_tasks: docker.yaml
 
-#- name: Deploy SSH keys
-#  include_tasks: ssh.yaml
+- name: Deploy SSH keys
+  include_tasks: ssh.yaml
 
-#- name: Deploy RKE cluster
-#  include_tasks: rke.yaml
-#  when: "'load-balancer' in hostvars[inventory_hostname]['roles']"
+- name: Deploy RKE cluster
+  include_tasks: rke.yaml
+  when: "'load-balancer' in hostvars[inventory_hostname]['roles']"

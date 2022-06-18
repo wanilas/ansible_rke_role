@@ -16,14 +16,14 @@
   become: yes
   ansible.builtin.file:
     path: /usr/local/bin/rke
-    owner: ubuntu
-    group: ubuntu
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: '0777'
 
 - name: Create the cluster.yml file
   template:
-    src: cluster.yml.j2
-    dest: /home/ubuntu/cluster.yml
+    src: cluster.yaml.j2
+    dest: "/home/{{ ansible_user }}/cluster.yml"
     lstrip_blocks : yes
 
 - name: Deploy local cluster
@@ -35,7 +35,7 @@
 
 - name: Create the .kube directory
   ansible.builtin.file:
-    path: /home/ubuntu/.kube
+    path: "/home/{{ ansible_user }}/.kube"
     state: directory
     mode: '0777'
 
@@ -43,13 +43,13 @@
   become: yes
   copy:
     remote_src: True
-    src: /home/ubuntu/kube_config_cluster.yml
-    dest: /home/ubuntu/.kube/config
+    src: "/home/{{ ansible_user }}/kube_config_cluster.yml"
+    dest: "/home/{{ ansible_user }}/.kube/config"
 
 - name: Change config file ownership, group and permissions
   become: yes
   ansible.builtin.file:
-    path: /home/ubuntu/.kube/config
-    owner: ubuntu
-    group: ubuntu
+    path: "/home/{{ ansible_user }}/.kube/config"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: '0644'
